@@ -25,14 +25,22 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import Switch from '@material-ui/core/Switch';
 import DeleteIcon from '@material-ui/icons/Delete';
 import FilterListIcon from '@material-ui/icons/FilterList';
+import IconRefresh from '@material-ui/icons/Refresh';
+import IconCheck from '@material-ui/icons/Check';
 
 function getAttendance() {
   return axios.get('/api/attendance').then(res => res.data);
 }
 
+function updateAttendance() {
+  return axios.get('/api/update/attendance').then(res => res.data);
+}
+
 function App() {
   const [loaded, setLoaded] = useState(false);
   const [players, setPlayers] = useState([]);
+  const [updating, setUpdating] = useState(false);
+  const [updated, setUpdated] = useState(false);
 
   useEffect(() => {
     console.log('Loading attendance');
@@ -42,6 +50,14 @@ function App() {
         setLoaded(true);
       });
   }, []);
+
+  const handleAttendance = () => {
+    setUpdating(true);
+    updateAttendance().then(() => {
+      setUpdating(false);
+      setUpdated(true);
+    });
+  };
 
   const useStyles = makeStyles({
     table: {
@@ -89,7 +105,20 @@ function App() {
         </Table>
       </TableContainer>
       }
+      <div>
+        {!updating && !updated &&
+        <IconButton onClick={() => handleAttendance()}>
+          <IconRefresh/>
+        </IconButton>}
+        {updating && !updated &&
+        <IconButton disabled><IconRefresh/></IconButton>
+        }
+        {updated && !updating &&
+        <IconButton disabled><IconCheck/></IconButton>
+        }
+      </div>
     </div>
+
   );
 }
 
